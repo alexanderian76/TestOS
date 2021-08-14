@@ -1,4 +1,6 @@
 global long_mode_start
+global read_port
+global write_port
 
 section .text
 bits 64
@@ -6,6 +8,7 @@ bits 64
 extern main
 extern isr1_handler
 extern IDT
+extern MarkLines
 
 
 %macro PUSHALL 0
@@ -19,16 +22,15 @@ extern IDT
 %endmacro
 
 %macro POPALL 0
-    push r11
-    push r10
-    push r9
-    push r8
-    push rdx
-    push rcx
-    push rax
+    pop r11
+    pop r10
+    pop r9
+    pop r8
+    pop rdx
+    pop rcx
+    pop rax
 %endmacro
     
-
 
 idtDescriptor:
     dw 4095
@@ -36,6 +38,7 @@ idtDescriptor:
 isr1:
     PUSHALL
     call isr1_handler
+    call    MarkLines
     POPALL
     iretq
     GLOBAL isr1
@@ -61,6 +64,6 @@ long_mode_start:
     mov rax, 0x2f592f412f4b2f4f
     mov qword [0xb8000], rax
     
-   call main
+    call main
    
     hlt
